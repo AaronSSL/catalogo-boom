@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BOOM Pyro · Catálogo</title>
+  <meta name="description" content="Catálogo de productos pirotécnicos BOOM Pyro" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ===================== HEADER ===================== -->
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-spark">✦</span>
+      <div>
+        <h1>BOOM<span>Pyro</span></h1>
+        <p class="tagline">Catálogo de productos pirotécnicos</p>
+      </div>
+    </div>
+
+    <button id="btn-pdf" class="btn-pdf" type="button">
+      <span class="ico">⤓</span> Exportar catálogo PDF
+    </button>
+  </header>
+
+  <!-- ===================== TOOLBAR ===================== -->
+  <section class="toolbar">
+    <div class="search-wrap">
+      <span class="search-ico">⌕</span>
+      <input
+        id="search"
+        type="search"
+        placeholder="Buscar por nombre o código…"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="filters" id="filters">
+      <!-- chips de categoría inyectados por JS -->
+    </div>
+
+    <div class="count" id="count"></div>
+  </section>
+
+  <!-- ===================== GRID ===================== -->
+  <main class="container">
+    <div id="status" class="status">Cargando productos…</div>
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty hidden">No se encontraron productos.</div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> BOOM Pyro — Todos los productos sujetos a disponibilidad.</p>
+  </footer>
+
+  <!-- ===================== OVERLAY PDF ===================== -->
+  <div id="pdf-overlay" class="overlay hidden">
+    <div class="overlay-box">
+      <div class="spinner"></div>
+      <p id="pdf-msg">Generando PDF…</p>
+      <div class="bar"><div id="pdf-bar" class="bar-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- ===================== LIBRERÍAS (CDN) ===================== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- ===================== APP ===================== -->
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="pdf.js"></script>
+</body>
+</html>
