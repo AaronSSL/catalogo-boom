@@ -31,6 +31,16 @@ function publicImageUrl(storagePath) {
 }
 window.publicImageUrl = publicImageUrl;
 
+// Devuelve una versión redimensionada + WebP de la imagen, servida por
+// el CDN gratuito wsrv.nl. Los PNG originales pesan varios MB; aquí se
+// muestran a ~400px y comprimidos, reduciendo el peso ~95-99%.
+// Si el proxy fallara, el <img> cae de vuelta a la URL original.
+function thumbUrl(url, w) {
+  if (!url) return url;
+  return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${w}&output=webp&q=80&we`;
+}
+window.thumbUrl = thumbUrl;
+
 function fmtPrecio(p) {
   if (p === null || p === undefined || p === "") return "";
   const n = Number(p);
@@ -232,13 +242,21 @@ function render() {
   emptyEl.classList.toggle("hidden", STATE.filtered.length !== 0);
 
   const frag = document.createDocumentFragment();
+  let idx = 0;
   for (const p of STATE.filtered) {
     const card = document.createElement("article");
     card.className = "card" + (p._agotado ? " agotado" : "");
 
+    // Las primeras tarjetas (visibles al entrar) cargan de inmediato y con
+    // prioridad alta; el resto en diferido conforme se hace scroll.
+    const eager = idx < 8;
     const imgHtml = p._img
-      ? `<img src="${p._img}" alt="${escapeAttr(p.nombre)}" loading="lazy"
-             onerror="this.parentElement.innerHTML='<div class=\\'noimg\\'>Sin imagen</div>'">`
+      ? `<img src="${thumbUrl(p._img, 400)}"
+             srcset="${thumbUrl(p._img, 400)} 1x, ${thumbUrl(p._img, 800)} 2x"
+             alt="${escapeAttr(p.nombre)}" decoding="async"
+             ${eager ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'}
+             data-full="${p._img}"
+             onerror="if(this.dataset.full&&this.src!==this.dataset.full){this.removeAttribute('srcset');this.src=this.dataset.full}else{this.parentElement.innerHTML='<div class=\\'noimg\\'>Sin imagen</div>'}">`
       : `<div class="noimg">Sin imagen</div>`;
 
     card.innerHTML = `
@@ -255,6 +273,7 @@ function render() {
         ${p.packing != null && p.packing !== "" ? `<span class="card-packing">Packing: ${escapeHtml(p.packing)}</span>` : ""}
       </div>`;
     frag.appendChild(card);
+    idx++;
   }
   grid.appendChild(frag);
 }
