@@ -1,7 +1,7 @@
 // ============================================================
-//  BOOM Pyro · Catálogo — lógica principal
+//  vamPyro · Catálogo — lógica principal
 // ============================================================
-const CFG = window.BOOM_CONFIG;
+const CFG = window.VAMPYRO_CONFIG;
 const sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
 
 // Estado global (compartido con pdf.js)

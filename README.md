@@ -1,4 +1,4 @@
-# BOOM Pyro · Catálogo web
+# vamPyro · Catálogo web
 
 Catálogo estático (HTML + CSS + JS, **sin build, sin Next.js**) conectado a Supabase.
 

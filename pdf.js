@@ -1,12 +1,12 @@
 // ============================================================
-//  BOOM Pyro · Catálogo — exportación a PDF (jsPDF)
+//  vamPyro · Catálogo — exportación a PDF (jsPDF)
 //  Genera un PDF tipo catálogo: portada + secciones por
 //  categoría + grid de tarjetas con imagen, código, nombre,
 //  medidas y precio.
 // ============================================================
 (function () {
   const { jsPDF } = window.jspdf;
-  const CFG = window.BOOM_CONFIG;
+  const CFG = window.VAMPYRO_CONFIG;
 
   const overlay = document.getElementById("pdf-overlay");
   const msgEl = document.getElementById("pdf-msg");
@@ -20,10 +20,8 @@
   const GREY = [120, 120, 130];
   const LINE = [210, 210, 218];
 
-  // Datos de la importadora (encabezado / portada / pies)
-  const DIR_L1 = "Av. Mariscal Benavides 325, San Vicente de Cañete";
-  const DIR_L2 = "Cañete, Lima, Perú";
-  const VENTA_NOTA = "Venta solo presencial, previa cita";
+  // Logo de marca (usado en encabezado y portada)
+  const LOGO_URL = "logoVampyro-header.png";
 
   function setProgress(done, total, label) {
     const pct = total ? Math.round((done / total) * 100) : 0;
@@ -59,6 +57,27 @@
           resolve({ dataURL, w, h });
         } catch (e) {
           console.warn("Imagen con CORS bloqueado:", url);
+          resolve(null);
+        }
+      };
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
+  }
+
+  // Carga el logo preservando su transparencia (PNG, sin relleno blanco)
+  function loadLogo(url) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          canvas.getContext("2d").drawImage(img, 0, 0);
+          resolve({ dataURL: canvas.toDataURL("image/png"), w: canvas.width, h: canvas.height });
+        } catch (e) {
           resolve(null);
         }
       };
@@ -108,6 +127,13 @@
       cache = new Map();
     }
 
+    let logo = null;
+    try {
+      logo = await loadLogo(LOGO_URL);
+    } catch (e) {
+      logo = null;
+    }
+
     setProgress(1, 1, "Construyendo PDF…");
     await new Promise((r) => setTimeout(r, 50)); // deja pintar el overlay
 
@@ -144,23 +170,22 @@
       doc.setTextColor(255, 255, 255);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(14);
-      doc.text("BOOM", M, 9.5);
+      doc.text("vam", M, 9.5);
       doc.setTextColor(...GOLD);
-      doc.text("Pyro", M + doc.getTextWidth("BOOM ") + 1, 9.5);
+      doc.text("Pyro", M + doc.getTextWidth("vam ") + 1, 9.5);
       doc.setTextColor(185, 185, 195);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(7);
       doc.text("IMPORTADORA DE PIROTECNIA", M, 14.5);
 
-      // Ubicación y modalidad de venta (lado derecho)
-      doc.setTextColor(210, 210, 220);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(7);
-      doc.text(DIR_L1, PW - M, 7.5, { align: "right" });
-      doc.text(DIR_L2, PW - M, 11.5, { align: "right" });
-      doc.setTextColor(...GOLD);
-      doc.setFont("helvetica", "bold");
-      doc.text(VENTA_NOTA, PW - M, 16.5, { align: "right" });
+      // Logo (lado derecho)
+      if (logo && logo.dataURL) {
+        const lh = HEADER_H - 6;
+        const lw = lh * (logo.w / logo.h);
+        try {
+          doc.addImage(logo.dataURL, "PNG", PW - M - lw, 3, lw, lh);
+        } catch (e) { /* ignora si falla */ }
+      }
     }
 
     function newPage() {
@@ -190,44 +215,35 @@
       doc.text("IMPORTADORA  DE  PIROTECNIA", PW / 2, 44, { align: "center" });
 
       doc.setFillColor(...RED);
-      doc.rect(0, PH / 2 - 30, PW, 0.8, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(54);
-      doc.text("BOOM", PW / 2, PH / 2 - 8, { align: "center" });
-      doc.setTextColor(...GOLD);
-      doc.setFontSize(54);
-      doc.text("PYRO", PW / 2, PH / 2 + 18, { align: "center" });
+      doc.rect(0, PH / 2 - 62, PW, 0.8, "F");
+
+      // Logo central (incluye el nombre de marca); si no carga, usa texto de respaldo
+      if (logo && logo.dataURL) {
+        const lw = 90;
+        const lh = lw * (logo.h / logo.w);
+        doc.addImage(logo.dataURL, "PNG", (PW - lw) / 2, PH / 2 - 58, lw, lh);
+      } else {
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(54);
+        doc.text("vam", PW / 2, PH / 2 - 8, { align: "center" });
+        doc.setTextColor(...GOLD);
+        doc.setFontSize(54);
+        doc.text("Pyro", PW / 2, PH / 2 + 18, { align: "center" });
+      }
+
       doc.setFillColor(...RED);
-      doc.rect(0, PH / 2 + 30, PW, 0.8, "F");
+      doc.rect(0, PH / 2 + 44, PW, 0.8, "F");
       doc.setTextColor(200, 200, 210);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(14);
-      doc.text("CATÁLOGO DE PRODUCTOS PIROTÉCNICOS", PW / 2, PH / 2 + 48, { align: "center" });
-
-      // Dirección
-      doc.setTextColor(220, 220, 230);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      doc.text(DIR_L1, PW / 2, PH - 54, { align: "center" });
-      doc.text(DIR_L2, PW / 2, PH - 48, { align: "center" });
-
-      // Recuadro de modalidad de venta
-      const boxW = 116, boxX = (PW - boxW) / 2, boxY = PH - 41;
-      doc.setDrawColor(...GOLD);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(boxX, boxY, boxW, 11, 2, 2, "S");
-      doc.setLineWidth(0.2);
-      doc.setTextColor(...GOLD);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.text("VENTA SOLO PRESENCIAL · PREVIA CITA", PW / 2, boxY + 7, { align: "center" });
+      doc.text("CATÁLOGO DE PRODUCTOS PIROTÉCNICOS", PW / 2, PH / 2 + 56, { align: "center" });
 
       doc.setFontSize(10);
       doc.setTextColor(150, 150, 160);
       doc.setFont("helvetica", "normal");
       const fecha = new Date().toLocaleDateString("es-PE", { year: "numeric", month: "long", day: "numeric" });
-      doc.text(`${productos.length} productos · ${fecha}`, PW / 2, PH - 20, { align: "center" });
+      doc.text(`${productos.length} productos · ${fecha}`, PW / 2, PH / 2 + 70, { align: "center" });
     }
 
     function categoryBand(nombre, indice, count) {
@@ -454,7 +470,7 @@
       doc.setTextColor(...GREY);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8);
-      doc.text(`BOOM Pyro · Importadora · ${VENTA_NOTA}`, M, PH - 4);
+      doc.text("vamPyro · Importadora", M, PH - 4);
       if (i === indexPageNo) {
         doc.text("Índice", PW - M, PH - 4, { align: "right" });
       } else {
@@ -463,7 +479,7 @@
     }
 
     const fecha = new Date().toISOString().slice(0, 10);
-    doc.save(`Catalogo_BOOM_Pyro_${fecha}.pdf`);
+    doc.save(`Catalogo_vamPyro_${fecha}.pdf`);
 
     overlay.classList.add("hidden");
     btn.disabled = false;

@@ -1,8 +1,8 @@
 // ============================================================
-//  CONFIGURACIÓN — BOOM Pyro Catálogo
+//  CONFIGURACIÓN — vamPyro Catálogo
 //  Edita aquí si cambian las credenciales o nombres de tablas.
 // ============================================================
-window.BOOM_CONFIG = {
+window.VAMPYRO_CONFIG = {
   SUPABASE_URL: "https://dzmcwwgybfeqniwxcrlo.supabase.co",
   SUPABASE_ANON_KEY:
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6bWN3d2d5YmZlcW5pd3hjcmxvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTg5MjYsImV4cCI6MjA5NTQ5NDkyNn0.30RlGDYL2iP_OKScMLatg4SNJXzxwVktlCOlyGuppk8",
@@ -14,7 +14,7 @@ window.BOOM_CONFIG = {
   BUCKET: "product-imgs",
 
   // Marca
-  EMPRESA: "BOOM Pyro",
+  EMPRESA: "vamPyro",
   MONEDA: "S/ ", // símbolo para precios (Soles)
 
   // Categorías que NO se muestran (ni en filtros ni en el grid)

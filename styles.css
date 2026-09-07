@@ -1,5 +1,5 @@
 /* ============================================================
-   BOOM Pyro · Catálogo — estilos
+   vamPyro · Catálogo — estilos
    ============================================================ */
 :root {
   --bg: #0d0b14;
@@ -9,7 +9,7 @@
   --line: #2e2840;
   --text: #f3eefb;
   --muted: #a79fc0;
-  --accent: #ff3b30;       /* rojo BOOM */
+  --accent: #ff3b30;       /* rojo vamPyro */
   --accent-2: #ffb020;     /* dorado chispa */
   --accent-grad: linear-gradient(135deg, #ff3b30 0%, #ff7a18 55%, #ffb020 100%);
   --radius: 16px;
@@ -48,11 +48,12 @@ body {
 
 .brand { display: flex; align-items: center; gap: 14px; }
 
-.brand-spark {
-  font-size: 34px;
-  color: var(--accent-2);
-  filter: drop-shadow(0 0 10px rgba(255, 176, 32, 0.7));
-  animation: pulse 2.4s ease-in-out infinite;
+.brand-logo {
+  height: 52px;
+  width: 52px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255, 176, 32, 0.55));
+  flex-shrink: 0;
 }
 
 @keyframes pulse {
