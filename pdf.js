@@ -12,6 +12,7 @@
   const msgEl = document.getElementById("pdf-msg");
   const barEl = document.getElementById("pdf-bar");
   const btn = document.getElementById("btn-pdf");
+  const chkDisponibles = document.getElementById("chk-solo-disponibles");
 
   // Paleta (RGB)
   const RED = [255, 59, 48];
@@ -108,11 +109,20 @@
   // -------- Generación del documento --------
   async function generar() {
     // El PDF SIEMPRE incluye todo el catálogo, sin importar la categoría
-    // o búsqueda que esté seleccionada en pantalla.
-    const productos = window.STATE.productos.slice();
+    // o búsqueda que esté seleccionada en pantalla (salvo el filtro de
+    // disponibilidad, que depende del checkbox de al lado del botón).
+    const soloDisponibles = !!(chkDisponibles && chkDisponibles.checked);
+    let productos = window.STATE.productos.slice();
+    if (soloDisponibles) {
+      productos = productos.filter((p) => !p._agotado);
+    }
 
     if (!productos.length) {
-      alert("No hay productos para exportar.");
+      alert(
+        soloDisponibles
+          ? "No hay productos disponibles para exportar (todos están agotados)."
+          : "No hay productos para exportar."
+      );
       return;
     }
 
